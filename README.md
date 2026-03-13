@@ -11,7 +11,19 @@ This repository implements an end-to-end image classification pipeline that cove
 - transfer learning with multiple pretrained CNN backbones
 - GPU training with mixed precision support
 - evaluation with classification reports and confusion matrices
-- automated model comparison across architectures
+- a Streamlit app for quick testing with trained checkpoints
+
+## How I Built This Project
+
+I built this project in a simple pipeline:
+
+1. I started with the IndoFashion dataset and created a balanced subset with 15 classes and 500 images per class.
+2. I organized the data into train, validation, and test folders so it could be used directly with PyTorch dataloaders.
+3. I used transfer learning with pretrained CNN models and replaced their final classifier layers with a custom classification head.
+4. I trained and evaluated multiple models, saved checkpoints and reports, and then compared their final performance.
+5. I added a `streamlit.py` app so the trained models can be tested interactively on uploaded images.
+
+This keeps the project focused on a complete but manageable deep learning workflow rather than a very large experimental setup.
 
 ## Dataset
 
@@ -68,6 +80,7 @@ indian-ethnic-clothing-classification/
 |   |-- models/
 |   |-- training/
 |   `-- utils/
+|-- streamlit.py
 |-- requirements.txt
 `-- README.md
 ```
@@ -87,7 +100,7 @@ Install the listed Python dependencies with:
 pip install -r requirements.txt
 ```
 
-Note: `torch` and `torchvision` may need to be installed separately depending on your CUDA setup.
+Note: `torch`, `torchvision`, and `streamlit` may need to be installed separately depending on your environment.
 
 ## Workflow
 
@@ -178,6 +191,25 @@ This generates:
 - `outputs/reports/model_comparison_summary.csv`
 - accuracy, macro F1, and weighted F1 comparison plots in `outputs/figures/model_comparison`
 
+### 5. Test the Model with Streamlit
+
+The `streamlit.py` file provides a simple UI for testing trained models on uploaded clothing images.
+
+Run:
+
+```bash
+streamlit run streamlit.py
+```
+
+The app lets you:
+
+- choose one of the trained models
+- upload an image
+- see the predicted class
+- view the top prediction probabilities
+
+Make sure the trained checkpoint files are available in `outputs/checkpoints/` before launching the app.
+
 ## Models Evaluated
 
 The project compares the following pretrained CNN architectures:
@@ -255,14 +287,6 @@ Key generated files include:
 - `outputs/figures/confusion_matrices/*.png`
 - `outputs/figures/training_curves/*.png`
 - `outputs/figures/model_comparison/*.png`
-
-## Future Improvements
-
-- train on the full IndoFashion dataset
-- tune augmentation and optimizer settings
-- run longer experiments and hyperparameter search
-- evaluate transformer-based vision models
-- expose inference through a small API or app
 
 ## Notes
 
