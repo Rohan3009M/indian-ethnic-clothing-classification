@@ -1,0 +1,8 @@
+{
+  "model_name": "densenet121",
+  "test_accuracy": 0.7724444444444445,
+  "macro_precision": 0.7795001751774077,
+  "macro_recall": 0.7724444444444443,
+  "macro_f1": 0.7668305778891368,
+  "weighted_f1": 0.766830577889137
+}

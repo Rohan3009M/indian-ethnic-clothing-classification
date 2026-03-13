@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.pyc
+
+# environments
+.venv
+venv/
+.env
+.env.*
+
+# dataset
+data/raw/
+data/processed/
+
+# checkpoints
+outputs/checkpoints/
+
+# logs
+outputs/logs/
+
+# notebook checkpoints
+.ipynb_checkpoints/
+
+# system
+.DS_Store
+Thumbs.db

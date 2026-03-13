@@ -1,0 +1,8 @@
+{
+  "model_name": "mobilenet_v2",
+  "test_accuracy": 0.7742222222222223,
+  "macro_precision": 0.776184170741854,
+  "macro_recall": 0.7742222222222223,
+  "macro_f1": 0.7697625134884875,
+  "weighted_f1": 0.7697625134884873
+}

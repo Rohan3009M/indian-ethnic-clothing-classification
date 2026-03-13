@@ -1,0 +1,8 @@
+{
+  "model_name": "resnet50",
+  "test_accuracy": 0.7395555555555555,
+  "macro_precision": 0.7419892022515723,
+  "macro_recall": 0.7395555555555556,
+  "macro_f1": 0.735156092982754,
+  "weighted_f1": 0.7351560929827541
+}
