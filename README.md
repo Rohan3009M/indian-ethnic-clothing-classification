@@ -14,43 +14,41 @@ IndoFashion Dataset
 
 🇮🇳 Indian Ethnic Clothing Classification using Deep Learning
 
-Deep learning project for classifying Indian ethnic clothing categories using the IndoFashion dataset with transfer learning and PyTorch.
+This project builds a deep learning image classification system that recognizes Indian ethnic clothing categories using the IndoFashion dataset and transfer learning with PyTorch.
 
-The project builds a complete end-to-end machine learning pipeline, including:
+The goal is to build a complete end-to-end ML pipeline including:
 
-dataset preparation
+Dataset preparation
 
-data augmentation
+Data augmentation
 
-transfer learning
+Transfer learning with pretrained CNNs
 
-GPU training
+GPU-based training
 
-model evaluation
+Model evaluation
 
-confusion matrix analysis
+Confusion matrix analysis
 
-automated model comparison
+Automated model comparison
 
 📌 Project Overview
 
-Indian ethnic fashion contains a wide variety of garments that are visually similar and complex to classify.
+Indian ethnic fashion contains many garments that are visually similar, making classification challenging.
 
-This project builds a deep learning image classification system capable of recognizing 15 categories of Indian ethnic clothing using pretrained convolutional neural networks.
+This project focuses on:
 
-The project focuses on:
+Applying transfer learning on pretrained CNN models
 
-transfer learning with pretrained CNNs
+Comparing multiple architectures
 
-comparing multiple architectures
+Building a reproducible ML pipeline
 
-building a reproducible ML pipeline
-
-analyzing classification errors using confusion matrices
+Analyzing classification errors using confusion matrices
 
 🧵 Clothing Categories
 
-The model classifies the following 15 Indian ethnic clothing types:
+The model classifies 15 types of Indian ethnic clothing:
 
 blouse
 
@@ -84,9 +82,8 @@ women_kurta
 
 📂 Dataset
 
-Dataset source:
-
-👉 https://indofashion.github.io/
+Dataset Source:
+https://indofashion.github.io/
 
 The original dataset contains ~106,000 images.
 
@@ -102,18 +99,19 @@ Validation	1,125
 Test	1,125
 Total	7,500
 
-Per class:
+Per class distribution:
 
-Train → 350
+Train: 350
 
-Validation → 75
+Validation: 75
 
-Test → 75
+Test: 75
 
 🏗 Project Structure
 indian-ethnic-clothing-classification/
 
 configs/
+
 data/
 │
 ├── raw
@@ -152,41 +150,43 @@ src/
 
 This structure separates:
 
-data preparation
+Data preparation
 
-model training
+Model training
 
-evaluation
+Evaluation
 
-experiment outputs
+Experiment outputs
 
-and follows production-style machine learning project organization.
+and follows a production-style ML project organization.
 
 ⚙️ Environment Setup
 Python
+
 Python 3.10
+
 GPU
+
 NVIDIA RTX 4060 Laptop GPU
+
 CUDA
+
 CUDA 12.8
+
 PyTorch
+
 torch 2.10.0 + cu128
+
 📦 Installation
-
-Clone the repository:
-
-git clone https://github.com/your-username/indian-ethnic-clothing-classification.git
+Clone the repository
+git clone https://github.com/Rohan3009M/indian-ethnic-clothing-classification.git
 
 cd indian-ethnic-clothing-classification
-
-Create environment:
-
+Create environment
 conda create -n fashion-classifier python=3.10
 
 conda activate fashion-classifier
-
-Install dependencies:
-
+Install dependencies
 pip install -r requirements.txt
 🧹 Dataset Preparation
 
@@ -196,22 +196,21 @@ python scripts/prepare_dataset.py
 
 This script:
 
-reads dataset metadata
+Reads dataset metadata
 
-groups images by class
+Groups images by class
 
-samples 500 images per class
+Samples 500 images per class
 
-creates train / val / test splits
+Creates train / validation / test splits
 
-generates dataset summary
+Generates dataset summary
 
-Output:
+Output directory:
 
 data/processed/dataset_subset
 🔄 Data Augmentation
-
-Training augmentations:
+Training Transformations
 
 RandomResizedCrop
 
@@ -225,7 +224,7 @@ ColorJitter
 
 Normalize
 
-Validation / Test transforms:
+Validation / Test Transformations
 
 Resize
 
@@ -241,20 +240,19 @@ MobileNetV2	ImageNet
 EfficientNetB0	ImageNet
 DenseNet121	ImageNet
 
-The original classifier layer was replaced with a custom classification head.
+The original classifier was replaced with a custom classification head:
 
-Custom Classifier
 Linear
 ReLU
 Dropout
 Linear
 🔬 Training Strategy
 
-Two transfer learning strategies were used.
+Two transfer learning approaches were used.
 
 Frozen Backbone
 
-Only classifier head is trained.
+Only the classifier head is trained.
 
 Used for:
 
@@ -264,9 +262,9 @@ EfficientNetB0
 
 Benefits:
 
-faster training
+Faster training
 
-reduced overfitting
+Reduced overfitting
 
 Full Fine-Tuning
 
@@ -292,33 +290,31 @@ Scheduler
 
 StepLR
 
-Additional features:
+Additional training features:
 
 GPU training
 
-mixed precision training (AMP)
+Mixed precision training (AMP)
 
-checkpoint saving
+Checkpoint saving
 
-training logs
+Training logs
 
 📈 Training Visualizations
 
-Training curves are automatically generated.
-
-Saved to:
+Training curves are automatically generated and saved to:
 
 outputs/figures/training_curves
 
 Includes:
 
-loss vs epoch
+Loss vs Epoch
 
-accuracy vs epoch
+Accuracy vs Epoch
 
 🧪 Model Evaluation
 
-Evaluation metrics used:
+Evaluation metrics:
 
 Accuracy
 
@@ -334,23 +330,26 @@ Generated using:
 
 sklearn.metrics
 
-Evaluation outputs:
+Evaluation outputs include:
 
 classification_report.txt
+
 confusion_matrix.png
+
 test_metrics.json
+
 🔎 Confusion Matrix Analysis
 
-Confusion matrices visualize class-wise prediction errors.
+Confusion matrices help visualize class-wise prediction errors.
 
-Example confusions observed:
+Example misclassifications:
 
-Class A	Confused With
+Class	Confused With
 leggings_and_salwars	dhoti_pants
 gowns	women_kurta
 dupattas	gowns
 
-These occur due to visual similarity between clothing styles.
+These errors occur due to visual similarity between garments.
 
 📊 Model Performance
 Model	Test Accuracy	Macro F1	Weighted F1
@@ -364,13 +363,13 @@ MobileNetV2
 
 Reasons:
 
-lightweight architecture
+Lightweight architecture
 
-better generalization
+Better generalization
 
-fewer parameters
+Fewer parameters
 
-lower overfitting
+Lower overfitting
 
 📊 Outputs Generated
 outputs/
@@ -394,41 +393,52 @@ figures/
     model_comparison
 🚀 Pipeline Features
 
-The project implements a complete deep learning pipeline:
+This project implements a complete deep learning pipeline:
 
-✔ dataset preparation
-✔ balanced sampling
+✔ Dataset preparation
+
+✔ Balanced sampling
+
 ✔ PyTorch dataloaders
-✔ data augmentation
-✔ transfer learning models
+
+✔ Data augmentation
+
+✔ Transfer learning models
+
 ✔ GPU training
-✔ mixed precision training
-✔ training visualization
-✔ evaluation metrics
-✔ confusion matrices
-✔ automated multi-model evaluation
-✔ model comparison plots
+
+✔ Mixed precision training
+
+✔ Training visualization
+
+✔ Evaluation metrics
+
+✔ Confusion matrices
+
+✔ Automated multi-model evaluation
+
+✔ Model comparison plots
 
 🔮 Future Improvements
 
 Possible extensions:
 
-training on full dataset
+Training on the full dataset
 
-higher resolution input images
+Higher resolution input images
 
-hyperparameter tuning
+Hyperparameter tuning
 
 Vision Transformer models
 
-deployment using FastAPI
+Deployment using FastAPI
 
-model inference API
+Building a model inference API
 
 ⚠️ Dataset Notice
 
 The dataset is not included in this repository due to size limitations.
 
-Download from:
+Download it from:
 
 https://indofashion.github.io/
