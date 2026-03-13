@@ -1,328 +1,269 @@
-<p align="center">
+# Indian Ethnic Clothing Classification
 
-# 🇮🇳 Indian Ethnic Clothing Classification
+Deep learning image classification for 15 categories of Indian ethnic clothing using PyTorch and transfer learning on the IndoFashion dataset.
 
-Deep Learning Image Classification using PyTorch and Transfer Learning  
-IndoFashion Dataset
+## Overview
 
-![Python](https://img.shields.io/badge/Python-3.10-blue)
-![PyTorch](https://img.shields.io/badge/PyTorch-Deep%20Learning-red)
-![GPU](https://img.shields.io/badge/GPU-CUDA%2012.8-green)
-![Dataset](https://img.shields.io/badge/Dataset-IndoFashion-orange)
+This repository implements an end-to-end image classification pipeline that covers:
 
-</p>
+- dataset preparation from the original IndoFashion metadata
+- balanced subset creation for manageable experimentation
+- transfer learning with multiple pretrained CNN backbones
+- GPU training with mixed precision support
+- evaluation with classification reports and confusion matrices
+- automated model comparison across architectures
 
-🇮🇳 Indian Ethnic Clothing Classification using Deep Learning
+## Dataset
 
-This project builds a deep learning image classification system that recognizes Indian ethnic clothing categories using the IndoFashion dataset and transfer learning with PyTorch.
+Source: https://indofashion.github.io/
 
-The goal is to build a complete end-to-end ML pipeline including:
+The original dataset contains about 106,000 images. This project uses a balanced subset for faster and more consistent experiments.
 
-* Dataset preparation
-* Data augmentation
-* Transfer learning with pretrained CNNs
-* GPU-based training
-* Model evaluation
-* Confusion matrix analysis
-* Automated model comparison
+### Subset Summary
 
-📌 Project Overview
+| Item | Value |
+| --- | ---: |
+| Classes | 15 |
+| Images per class | 500 |
+| Total images | 7,500 |
 
-Indian ethnic fashion contains many garments that are visually similar, making classification challenging.
+### Split Summary
 
-This project focuses on:
+| Split | Images | Per class |
+| --- | ---: | ---: |
+| Train | 5,250 | 350 |
+| Validation | 1,125 | 75 |
+| Test | 1,125 | 75 |
+| Total | 7,500 | 500 |
 
-* Applying transfer learning on pretrained CNN models
-* Comparing multiple architectures
-* Building a reproducible ML pipeline
-* Analyzing classification errors using confusion matrices
+### Classes
 
-🧵 Clothing Categories
+`blouse`, `dhoti_pants`, `dupattas`, `gowns`, `kurta_men`, `leggings_and_salwars`, `lehenga`, `mojaris_men`, `mojaris_women`, `nehru_jackets`, `palazzos`, `petticoats`, `saree`, `sherwanis`, `women_kurta`
 
-The model classifies 15 types of Indian ethnic clothing:
+## Project Structure
 
-[blouse, dhoti_pants, dupattas, gowns, kurta_men, leggings_and_salwars, lehenga, mojaris_men, mojaris_women, nehru_jackets, palazzos, petticoats, saree, sherwanis, women_kurta]
-
-📂 Dataset
-
-Dataset Source:
-https://indofashion.github.io/
-
-The original dataset contains ~106,000 images.
-
-To make training manageable and balanced, a subset was created.
-
-Dataset Subset
-Classes	Images per class	Total
-15	    500	                7,500
-
-📊 Dataset Split
-Split	    Images
-Train	    5,250
-Validation	1,125
-Test	    1,125
-Total	    7,500
-
-Per class distribution:
-Train: 350
-Validation: 75
-Test: 75
-
-🏗 Project Structure
+```text
 indian-ethnic-clothing-classification/
+|-- data/
+|   |-- raw/
+|   |   `-- indofashion_dataset/
+|   |-- interim/
+|   `-- processed/
+|       `-- dataset_subset/
+|           |-- train/
+|           |-- val/
+|           `-- test/
+|-- outputs/
+|   |-- checkpoints/
+|   |-- figures/
+|   |   |-- confusion_matrices/
+|   |   |-- model_comparison/
+|   |   `-- training_curves/
+|   |-- logs/
+|   `-- reports/
+|-- scripts/
+|-- src/
+|   |-- data/
+|   |-- evaluation/
+|   |-- models/
+|   |-- training/
+|   `-- utils/
+|-- requirements.txt
+`-- README.md
+```
 
-data/
-│
-├── raw
-│   └── indofashion_dataset
-│
-├── interim
-│
-└── processed
-    └── dataset_subset
-        ├── train
-        ├── val
-        └── test
+## Environment
 
-outputs/
-│
-├── checkpoints
-├── figures
-│   ├── confusion_matrices
-│   ├── model_comparison
-│   └── training_curves
-│
-├── logs
-└── reports
+The project was developed with:
 
-scripts/
+- Python 3.10
+- PyTorch with CUDA support
+- NVIDIA RTX 4060 Laptop GPU
+- CUDA 12.8
 
-src/
-├── data
-├── models
-├── training
-├── evaluation
-└── utils
+Install the listed Python dependencies with:
 
-This structure separates:
+```bash
+pip install -r requirements.txt
+```
 
-* Data preparation
-* Model training
-* Evaluation
-* Experiment outputs
+Note: `torch` and `torchvision` may need to be installed separately depending on your CUDA setup.
 
-and follows a production-style ML project organization.
+## Workflow
 
-⚙️ Environment Setup
-Python
+### 1. Prepare the Dataset Subset
 
-Python: 3.10, GPU: NVIDIA RTX 4060 Laptop GPU, CUDA: CUDA 12.8, PyTorch: torch 2.10.0 + cu128
+Expected raw dataset location:
 
-🧹 Dataset Preparation
+```text
+data/raw/indofashion_dataset
+```
 
-Prepare the dataset subset using:
+Run:
 
-* python scripts/prepare_dataset.py
+```bash
+python scripts/prepare_dataset.py
+```
 
 This script:
 
-* Reads dataset metadata
-* Groups images by class
-* Samples 500 images per class
-* Creates train / validation / test splits
-* Generates dataset summary
+- reads metadata from the raw dataset JSONL files
+- normalizes class names
+- samples 500 images per class
+- creates `train`, `val`, and `test` splits
+- copies images into `data/processed/dataset_subset`
+- saves a summary to `data/interim/subset_summary.csv`
 
-Output directory:
+### 2. Train a Model
 
-data/processed/dataset_subset
+Example:
 
-🔄 Data Augmentation
-Training Transformations
+```bash
+python scripts/train.py --model_name mobilenet_v2 --epochs 5
+```
 
-* RandomResizedCrop
-* RandomHorizontalFlip
-* RandomRotation
-* RandomAffine
-* ColorJitter
-* Normalize
+Optional frozen-backbone training:
 
-Validation / Test Transformations
+```bash
+python scripts/train.py --model_name resnet50 --epochs 5 --freeze_backbone
+```
 
-* Resize
-* Normalize
+Useful arguments:
 
-🧠 Models Used
+- `--model_name`: `resnet50`, `mobilenet_v2`, `efficientnet_b0`, `densenet121`
+- `--epochs`: number of training epochs
+- `--batch_size`: batch size, default `32`
+- `--image_size`: image size, default `224`
+- `--lr`: learning rate, default `1e-3`
+- `--weight_decay`: weight decay, default `1e-4`
+- `--freeze_backbone`: trains only the classification head
 
-The following pretrained CNN architectures were evaluated:
+Training outputs:
 
-Model Pretrained
+- checkpoints in `outputs/checkpoints`
+- training history in `outputs/logs/<model_name>/history.json`
+- training curves in `outputs/figures/training_curves`
 
-* ResNet50	      ImageNet
-* MobileNetV2	  ImageNet
-* EfficientNetB0  ImageNet
-* DenseNet121	  ImageNet
+### 3. Evaluate a Trained Model
 
-The original classifier was replaced with a custom classification head:
+Example:
 
-[Linear, ReLU, Dropout, Linear]
+```bash
+python scripts/evaluate.py --model_name mobilenet_v2
+```
 
-🔬 Training Strategy
+If the model was trained with a frozen backbone, pass:
 
-Two transfer learning approaches were used.
+```bash
+python scripts/evaluate.py --model_name resnet50 --freeze_backbone
+```
 
-1. Frozen Backbone: Only the classifier head is trained.
+Evaluation outputs:
 
-Used for: ResNet50, EfficientNetB0
+- classification report in `outputs/reports`
+- confusion matrix in `outputs/figures/confusion_matrices`
+- metrics JSON in `outputs/reports`
 
-Benefits: 
+### 4. Compare Models
 
-* Faster training
-* Reduced overfitting
+Run:
 
-2. Full Fine-Tuning: Entire network is trained.
+```bash
+python scripts/evaluate_all_models.py
+python scripts/compare_models.py
+```
 
-Used for: MobileNetV2, DenseNet121
+This generates:
 
-🏋️ Training Configuration
+- `outputs/reports/model_comparison_summary.csv`
+- accuracy, macro F1, and weighted F1 comparison plots in `outputs/figures/model_comparison`
 
-* Loss Function: CrossEntropyLoss
-* Optimizer: AdamW
-* Scheduler: StepLR
+## Models Evaluated
 
-Additional training features:
+The project compares the following pretrained CNN architectures:
 
-* GPU training
-* Mixed precision training (AMP)
-* Checkpoint saving
-* Training logs
+- ResNet50
+- MobileNetV2
+- EfficientNet-B0
+- DenseNet121
 
-📈 Training Visualizations
+Each model replaces the default classifier with a custom head:
 
-Training curves are automatically generated and saved to: outputs/figures/training_curves
+```text
+Linear -> ReLU -> Dropout -> Linear
+```
 
-Includes:
+## Training Setup
 
-* Loss vs Epoch
-* Accuracy vs Epoch
+- Loss: `CrossEntropyLoss`
+- Optimizer: `AdamW`
+- Scheduler: `StepLR`
+- Mixed precision: enabled during training
+- Device selection: automatic CPU/GPU detection
+- Checkpointing: best model is saved during training
 
-🧪 Model Evaluation
+## Evaluation Metrics
 
-Evaluation metrics:
+The evaluation pipeline reports:
 
-* Accuracy
-* Precision
-* Recall
-* F1 Score
-* Confusion Matrix
+- accuracy
+- macro precision
+- macro recall
+- macro F1
+- weighted F1
+- confusion matrix
 
-Generated using: sklearn.metrics
+## Model Performance
 
-Evaluation outputs include:
+Results from `outputs/reports/model_comparison_summary.csv`:
 
-* classification_report.txt
-* confusion_matrix.png
-* test_metrics.json
+| Model | Test Accuracy | Macro F1 | Weighted F1 |
+| --- | ---: | ---: | ---: |
+| MobileNetV2 | 77.42% | 0.770 | 0.770 |
+| DenseNet121 | 77.24% | 0.767 | 0.767 |
+| ResNet50 | 73.96% | 0.735 | 0.735 |
+| EfficientNet-B0 | 69.51% | 0.685 | 0.685 |
 
-🔎 Confusion Matrix Analysis
+## Best Model
 
-Confusion matrices help visualize class-wise prediction errors.
+`MobileNetV2` performed best in this experiment.
 
-Example misclassifications:
+Reasons it stands out:
 
-Class	                Confused With
-leggings_and_salwars	dhoti_pants
-gowns	                women_kurta
-dupattas	            gowns
+- highest test accuracy in the current comparison
+- best macro F1 and weighted F1 among tested models
+- lightweight architecture with strong generalization
 
-These errors occur due to visual similarity between garments.
+## Outputs
 
-📊 Model Performance
-Model	        Test Accuracy	 Macro F1	 Weighted F1
-MobileNetV2	    77.42%	         0.769	     0.769
-DenseNet121	    77.24%	         0.766	     0.766
-ResNet50	    73.96%	         0.735	     0.735
-EfficientNetB0	69.51%	         0.685	     0.685
-
-🏆 Best Model
-
-MobileNetV2
-
-Reasons:
-
-* Lightweight architecture
-* Better generalization
-* Fewer parameters
-* Lower overfitting
-
-📊 Outputs Generated
+```text
 outputs/
+|-- checkpoints/
+|-- figures/
+|   |-- confusion_matrices/
+|   |-- model_comparison/
+|   `-- training_curves/
+|-- logs/
+`-- reports/
+```
 
-checkpoints/
-    resnet50_best.pth
-    mobilenet_v2_best.pth
-    efficientnet_b0_best.pth
-    densenet121_best.pth
+Key generated files include:
 
-logs/
+- `outputs/reports/*_classification_report.txt`
+- `outputs/reports/*_test_metrics.json`
+- `outputs/reports/model_comparison_summary.csv`
+- `outputs/figures/confusion_matrices/*.png`
+- `outputs/figures/training_curves/*.png`
+- `outputs/figures/model_comparison/*.png`
 
-reports/
-    classification_reports
-    metrics_json
-    model_comparison_summary.csv
+## Future Improvements
 
-figures/
-    confusion_matrices
-    training_curves
-    model_comparison
-    
-🚀 Pipeline Features
+- train on the full IndoFashion dataset
+- tune augmentation and optimizer settings
+- run longer experiments and hyperparameter search
+- evaluate transformer-based vision models
+- expose inference through a small API or app
 
-This project implements a complete deep learning pipeline:
+## Notes
 
-✔ Dataset preparation
-
-✔ Balanced sampling
-
-✔ PyTorch dataloaders
-
-✔ Data augmentation
-
-✔ Transfer learning models
-
-✔ GPU training
-
-✔ Mixed precision training
-
-✔ Training visualization
-
-✔ Evaluation metrics
-
-✔ Confusion matrices
-
-✔ Automated multi-model evaluation
-
-✔ Model comparison plots
-
-🔮 Future Improvements
-
-Possible extensions:
-
-Training on the full dataset
-
-Higher resolution input images
-
-Hyperparameter tuning
-
-Vision Transformer models
-
-Deployment using FastAPI
-
-Building a model inference API
-
-⚠️ Dataset Notice
-
-The dataset is not included in this repository due to size limitations.
-
-Download it from:
-
-https://indofashion.github.io/
+The dataset is not included in this repository because of its size. Download it from the official IndoFashion source and place it under `data/raw/indofashion_dataset` before running the pipeline.
