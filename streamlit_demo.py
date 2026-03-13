@@ -1,4 +1,3 @@
-import json
 from pathlib import Path
 from typing import Dict, List, Tuple
 
@@ -11,8 +10,60 @@ from torchvision import models, transforms
 
 st.set_page_config(
     page_title="Indian Ethnic Clothing Classifier",
-    page_icon="👗",
     layout="wide",
+)
+
+st.markdown(
+    """
+    <style>
+    .stApp {
+        background:
+            radial-gradient(circle at top left, rgba(201, 93, 44, 0.16), transparent 34%),
+            radial-gradient(circle at top right, rgba(214, 168, 84, 0.18), transparent 28%),
+            linear-gradient(180deg, #fffaf3 0%, #f7f1e7 100%);
+        color: #2f241b;
+    }
+    .hero {
+        padding: 1.4rem 1.6rem;
+        border-radius: 20px;
+        background: linear-gradient(135deg, rgba(125, 40, 15, 0.95), rgba(191, 110, 42, 0.9));
+        color: #fff7ef;
+        box-shadow: 0 14px 32px rgba(76, 36, 14, 0.18);
+        margin-bottom: 1rem;
+    }
+    .hero h1 {
+        margin: 0;
+        font-size: 2.2rem;
+        font-weight: 700;
+    }
+    .hero p {
+        margin: 0.55rem 0 0;
+        font-size: 1rem;
+        line-height: 1.5;
+    }
+    .card {
+        background: rgba(255, 252, 246, 0.92);
+        border: 1px solid rgba(150, 108, 74, 0.18);
+        border-radius: 18px;
+        padding: 1rem 1.1rem;
+        box-shadow: 0 10px 24px rgba(86, 60, 28, 0.08);
+    }
+    .metric-label {
+        font-size: 0.82rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #7e5b41;
+        margin-bottom: 0.2rem;
+    }
+    .metric-value {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #4c2b18;
+        margin-bottom: 0.75rem;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
 )
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -52,23 +103,23 @@ MODEL_OPTIONS: Dict[str, str] = {
 MODEL_SUMMARY: Dict[str, Dict[str, str]] = {
     "MobileNetV2": {
         "accuracy": "77.42%",
-        "macro_f1": "0.769",
-        "notes": "Best overall performer on the evaluation subset.",
+        "macro_f1": "0.770",
+        "notes": "Best overall result in this project.",
     },
     "DenseNet121": {
         "accuracy": "77.24%",
-        "macro_f1": "0.766",
-        "notes": "Very close to MobileNetV2 in overall performance.",
+        "macro_f1": "0.767",
+        "notes": "Very close to MobileNetV2.",
     },
     "ResNet50": {
         "accuracy": "73.96%",
         "macro_f1": "0.735",
-        "notes": "Good baseline transfer-learning model.",
+        "notes": "A strong and reliable baseline.",
     },
     "EfficientNetB0": {
         "accuracy": "69.51%",
         "macro_f1": "0.685",
-        "notes": "Lower performance than the others on this setup.",
+        "notes": "Works, but ranked below the others here.",
     },
 }
 
@@ -153,7 +204,9 @@ def load_model(display_name: str) -> nn.Module:
     checkpoint_path = CHECKPOINT_DIR / checkpoint_name
 
     if not checkpoint_path.exists():
-        raise FileNotFoundError(f"Checkpoint not found: {checkpoint_path}")
+        raise FileNotFoundError(
+            f"Model file not found: {checkpoint_name}. Please place it in outputs/checkpoints/."
+        )
 
     model = build_model(display_name, NUM_CLASSES)
     checkpoint = torch.load(checkpoint_path, map_location=DEVICE)
@@ -162,10 +215,7 @@ def load_model(display_name: str) -> nn.Module:
     missing_keys, unexpected_keys = model.load_state_dict(state_dict, strict=False)
 
     if missing_keys or unexpected_keys:
-        raise RuntimeError(
-            "Checkpoint and model architecture do not match. "
-            f"Missing keys: {missing_keys[:5]} | Unexpected keys: {unexpected_keys[:5]}"
-        )
+        raise RuntimeError("This saved model could not be loaded for the selected option.")
 
     model.to(DEVICE)
     model.eval()
@@ -188,60 +238,88 @@ def predict_image(model: nn.Module, image: Image.Image, top_k: int = 3) -> Tuple
     return predictions[0][0], predictions
 
 
-st.title("👗 Indian Ethnic Clothing Classification Demo")
-st.caption("Upload an image, select a trained model, and compare predictions.")
+st.markdown(
+    """
+    <div class="hero">
+        <h1>Indian Ethnic Clothing Classifier</h1>
+        <p>Try a trained model by uploading a clothing image. The app shows the most likely class and the top matching predictions.</p>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 
 with st.sidebar:
-    st.header("Model Selection")
-    selected_model = st.selectbox("Choose a model", list(MODEL_OPTIONS.keys()), index=0)
+    st.header("Choose a model")
+    selected_model = st.selectbox("Available models", list(MODEL_OPTIONS.keys()), index=0)
     st.markdown("---")
-    st.subheader("Model Performance")
-    st.write(f"**Accuracy:** {MODEL_SUMMARY[selected_model]['accuracy']}")
-    st.write(f"**Macro F1:** {MODEL_SUMMARY[selected_model]['macro_f1']}")
+    st.subheader("Model snapshot")
+    st.markdown(
+        f'<div class="metric-label">Accuracy</div><div class="metric-value">{MODEL_SUMMARY[selected_model]["accuracy"]}</div>',
+        unsafe_allow_html=True,
+    )
+    st.markdown(
+        f'<div class="metric-label">Macro F1</div><div class="metric-value">{MODEL_SUMMARY[selected_model]["macro_f1"]}</div>',
+        unsafe_allow_html=True,
+    )
     st.caption(MODEL_SUMMARY[selected_model]["notes"])
 
-left_col, right_col = st.columns([1.1, 1])
+intro_col, info_col = st.columns([1.35, 1])
 
-with left_col:
-    uploaded_file = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png", "webp"])
-    st.markdown("### Supported classes")
+with intro_col:
+    st.markdown('<div class="card">', unsafe_allow_html=True)
+    st.subheader("Upload an image")
+    uploaded_file = st.file_uploader(
+        "Choose a clothing photo",
+        type=["jpg", "jpeg", "png", "webp"],
+        help="Use a clear image with one main clothing item for the best result.",
+    )
+    st.caption("Supported formats: JPG, JPEG, PNG, WEBP")
+    st.markdown('</div>', unsafe_allow_html=True)
+
+with info_col:
+    st.markdown('<div class="card">', unsafe_allow_html=True)
+    st.subheader("About this demo")
+    st.write(f"Running on: {DEVICE}")
+    st.write(f"Image size: {IMAGE_SIZE} x {IMAGE_SIZE}")
+    st.write(f"Available models: {len(MODEL_OPTIONS)}")
+    st.caption("Classes supported by the app")
     st.write(", ".join(CLASS_NAMES))
-
-with right_col:
-    st.markdown("### App details")
-    st.write(f"**Device:** {DEVICE}")
-    st.write(f"**Input size:** {IMAGE_SIZE} × {IMAGE_SIZE}")
-    st.write(f"**Models available:** {len(MODEL_OPTIONS)}")
+    st.markdown('</div>', unsafe_allow_html=True)
 
 if uploaded_file is None:
-    st.info("Upload an image to test the model.")
+    st.info("Upload an image to start the prediction.")
 else:
     try:
         image = Image.open(uploaded_file).convert("RGB")
 
-        preview_col, result_col = st.columns([1, 1])
+        preview_col, result_col = st.columns([1.05, 1])
         with preview_col:
-            st.image(image, caption="Uploaded image", use_container_width=True)
+            st.markdown('<div class="card">', unsafe_allow_html=True)
+            st.subheader("Your image")
+            st.image(image, use_container_width=True)
+            st.markdown('</div>', unsafe_allow_html=True)
 
-        with st.spinner("Running prediction..."):
+        with st.spinner("Checking the image..."):
             model = load_model(selected_model)
             predicted_label, predictions = predict_image(model, image, top_k=3)
 
         with result_col:
-            st.subheader("Prediction")
+            st.markdown('<div class="card">', unsafe_allow_html=True)
+            st.subheader("Prediction result")
             st.success(f"Predicted class: {predicted_label}")
-            st.subheader("Top probabilities")
+            st.markdown("### Top matches")
             for label, score in predictions:
-                st.write(f"**{label}** — {score:.2f}%")
+                st.write(f"{label}: {score:.2f}%")
                 st.progress(max(0.0, min(score / 100.0, 1.0)))
+            st.markdown('</div>', unsafe_allow_html=True)
 
     except Exception as exc:
         st.error(str(exc))
 
 st.markdown("---")
-st.markdown("### Notes for use")
+st.subheader("How to use this app")
 st.markdown(
-    "- Keep model checkpoint files inside `outputs/checkpoints/`.\n"
-    "- Use clothing images similar to the training dataset for better predictions.\n"
-    "- If a checkpoint fails to load, check whether the saved architecture matches the selected model."
+    """
+- Upload a clear clothing image and choose a model from the sidebar.
+    """
 )

@@ -11,19 +11,17 @@ This repository implements an end-to-end image classification pipeline that cove
 - transfer learning with multiple pretrained CNN backbones
 - GPU training with mixed precision support
 - evaluation with classification reports and confusion matrices
-- a Streamlit app for quick testing with trained checkpoints
+- a Streamlit app for simple image testing with trained models
 
 ## How I Built This Project
 
 I built this project in a simple pipeline:
 
 1. I started with the IndoFashion dataset and created a balanced subset with 15 classes and 500 images per class.
-2. I organized the data into train, validation, and test folders so it could be used directly with PyTorch dataloaders.
-3. I used transfer learning with pretrained CNN models and replaced their final classifier layers with a custom classification head.
-4. I trained and evaluated multiple models, saved checkpoints and reports, and then compared their final performance.
-5. I added a `streamlit.py` app so the trained models can be tested interactively on uploaded images.
-
-This keeps the project focused on a complete but manageable deep learning workflow rather than a very large experimental setup.
+2. I organized the images into train, validation, and test folders so they could be used directly with PyTorch dataloaders.
+3. I used transfer learning with pretrained CNN models and replaced the final classifier layers with a custom classification head.
+4. I trained and evaluated multiple models, saved the best checkpoints, and compared their performance.
+5. I added a Streamlit app so anyone can upload an image and quickly test the trained models.
 
 ## Dataset
 
@@ -80,27 +78,18 @@ indian-ethnic-clothing-classification/
 |   |-- models/
 |   |-- training/
 |   `-- utils/
-|-- streamlit.py
+|-- streamlit_demo.py
 |-- requirements.txt
 `-- README.md
 ```
 
-## Environment
+## Environment Setup
 
-The project was developed with:
-
-- Python 3.10
-- PyTorch with CUDA support
-- NVIDIA RTX 4060 Laptop GPU
-- CUDA 12.8
-
-Install the listed Python dependencies with:
+Install the dependencies with:
 
 ```bash
 pip install -r requirements.txt
 ```
-
-Note: `torch`, `torchvision`, and `streamlit` may need to be installed separately depending on your environment.
 
 ## Workflow
 
@@ -151,12 +140,6 @@ Useful arguments:
 - `--weight_decay`: weight decay, default `1e-4`
 - `--freeze_backbone`: trains only the classification head
 
-Training outputs:
-
-- checkpoints in `outputs/checkpoints`
-- training history in `outputs/logs/<model_name>/history.json`
-- training curves in `outputs/figures/training_curves`
-
 ### 3. Evaluate a Trained Model
 
 Example:
@@ -171,12 +154,6 @@ If the model was trained with a frozen backbone, pass:
 python scripts/evaluate.py --model_name resnet50 --freeze_backbone
 ```
 
-Evaluation outputs:
-
-- classification report in `outputs/reports`
-- confusion matrix in `outputs/figures/confusion_matrices`
-- metrics JSON in `outputs/reports`
-
 ### 4. Compare Models
 
 Run:
@@ -189,26 +166,24 @@ python scripts/compare_models.py
 This generates:
 
 - `outputs/reports/model_comparison_summary.csv`
-- accuracy, macro F1, and weighted F1 comparison plots in `outputs/figures/model_comparison`
+- comparison plots in `outputs/figures/model_comparison`
 
-### 5. Test the Model with Streamlit
+### 5. Try the Streamlit App
 
-The `streamlit.py` file provides a simple UI for testing trained models on uploaded clothing images.
+The Streamlit app gives a simple interface for testing the trained models.
 
 Run:
 
 ```bash
-streamlit run streamlit.py
+streamlit run streamlit_demo.py
 ```
 
-The app lets you:
+For a smooth first try:
 
-- choose one of the trained models
-- upload an image
-- see the predicted class
-- view the top prediction probabilities
-
-Make sure the trained checkpoint files are available in `outputs/checkpoints/` before launching the app.
+- install the requirements first
+- keep the trained model files inside `outputs/checkpoints/`
+- upload a clear clothing image
+- choose a model from the sidebar and view the prediction results
 
 ## Models Evaluated
 
@@ -230,9 +205,9 @@ Linear -> ReLU -> Dropout -> Linear
 - Loss: `CrossEntropyLoss`
 - Optimizer: `AdamW`
 - Scheduler: `StepLR`
-- Mixed precision: enabled during training
-- Device selection: automatic CPU/GPU detection
-- Checkpointing: best model is saved during training
+- Mixed precision training
+- automatic CPU/GPU device selection
+- best-model checkpoint saving
 
 ## Evaluation Metrics
 
@@ -258,35 +233,7 @@ Results from `outputs/reports/model_comparison_summary.csv`:
 
 ## Best Model
 
-`MobileNetV2` performed best in this experiment.
-
-Reasons it stands out:
-
-- highest test accuracy in the current comparison
-- best macro F1 and weighted F1 among tested models
-- lightweight architecture with strong generalization
-
-## Outputs
-
-```text
-outputs/
-|-- checkpoints/
-|-- figures/
-|   |-- confusion_matrices/
-|   |-- model_comparison/
-|   `-- training_curves/
-|-- logs/
-`-- reports/
-```
-
-Key generated files include:
-
-- `outputs/reports/*_classification_report.txt`
-- `outputs/reports/*_test_metrics.json`
-- `outputs/reports/model_comparison_summary.csv`
-- `outputs/figures/confusion_matrices/*.png`
-- `outputs/figures/training_curves/*.png`
-- `outputs/figures/model_comparison/*.png`
+`MobileNetV2` performed best in this experiment because it gave the highest accuracy and strongest overall balance across the evaluation metrics.
 
 ## Notes
 
