@@ -91,6 +91,19 @@ Install the dependencies with:
 pip install -r requirements.txt
 ```
 
+## How to Reproduce Results
+
+Run the project in this order:
+
+```bash
+python scripts/prepare_dataset.py
+python scripts/train.py --model_name mobilenet_v2 --epochs 5
+python scripts/evaluate.py --model_name mobilenet_v2
+python scripts/compare_models.py
+```
+
+You can repeat the training and evaluation commands with the other model names to reproduce the full comparison.
+
 ## Workflow
 
 ### 1. Prepare the Dataset Subset
@@ -184,6 +197,8 @@ For a smooth first try:
 - keep the trained model files inside `outputs/checkpoints/`
 - upload a clear clothing image
 - choose a model from the sidebar and view the prediction results
+
+Checkpoint files are not included in this repository, so the Streamlit demo will not run until you train a model or place trained checkpoint files inside `outputs/checkpoints/`.
 
 ## Models Evaluated
 
